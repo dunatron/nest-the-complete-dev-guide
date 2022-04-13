@@ -177,5 +177,29 @@ It is an object with some properties in it
 
 is an object with a couple of different properties in it, simplified, it store two sets of information
 
-- store a list of all the different classes and there dependencies
-- secondly it will store a list of all the different instances this container has created
+1. store a list of all the different classes and there dependencies
+2. secondly it will store a list of all the different instances this container has created
+
+#### DI Container flow
+
+- At startup, register all classes with the container
+- Container will figure out what each dependency each class has
+- We then ask the container to create am instance of a class for us
+- Container creates all required dependencies and gives us the instance
+- Container will hold onto the created dependency instances and reuse them if needed
+
+#### CLass dependency injection
+
+```ts
+// this can be written in a more condensed way
+messagesRepo: MessagesRepository;
+constructor(messagesRepo: MessagesRepository) {
+  this.messagesRepo = messagesRepo;
+}
+
+// like this
+// Which means the properties are automatically assigned to the class
+constructor(public messagesRepo: MessagesRepository) {
+
+}
+```
