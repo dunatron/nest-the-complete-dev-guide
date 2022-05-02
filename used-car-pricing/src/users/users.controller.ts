@@ -18,6 +18,8 @@ import { UsersService } from './users.service';
 
 import { UserDto } from './dtos/user.dto';
 import { AuthService } from './auth.service';
+import { CurrentUser } from './decorators/current-user.decorator';
+import { User } from './user.entity';
 
 // import { SerializeInterceptor } from '../interceptors/serialize.interceptor';
 import { Serialize } from '../interceptors/serialize.interceptor';
@@ -42,8 +44,8 @@ export class UsersController {
   }
 
   @Get('/whoami')
-  whoAmI(@Session() session: any) {
-    return this.usersService.findOne(session.userId)
+  whoAmI(@CurrentUser() user: User) {
+    return user
   }
 
   @Post('/signout')
@@ -53,9 +55,6 @@ export class UsersController {
 
   @Post('/signup')
   async createUser(@Body() body: CreateUserDto, @Session() session: any) {
-    return {
-      email: "tet@test.com"
-    }
     // now we can use the body params
     // this.usersService.create(body.email, body.password);
     const user =  await this.authService.signup(body.email, body.password)
