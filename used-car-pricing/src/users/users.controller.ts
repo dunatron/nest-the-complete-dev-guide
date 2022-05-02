@@ -8,6 +8,7 @@ import {
   Query,
   Delete,
   NotFoundException,
+  Session,
   UseInterceptors,
   ClassSerializerInterceptor
 } from '@nestjs/common';
@@ -15,17 +16,62 @@ import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { UsersService } from './users.service';
 
-@Controller('auth')
-export class UsersController {
-  constructor(private usersService: UsersService) {}
+import { UserDto } from './dtos/user.dto';
+import { AuthService } from './auth.service';
 
-  @Post('/signup')
-  createUser(@Body() body: CreateUserDto) {
-    // now we can use the body params
-    this.usersService.create(body.email, body.password);
+// import { SerializeInterceptor } from '../interceptors/serialize.interceptor';
+import { Serialize } from '../interceptors/serialize.interceptor';
+import { get } from 'http';
+
+@Controller('auth')
+@Serialize(UserDto)
+export class UsersController {
+  constructor(
+    private usersService: UsersService,
+    private authService: AuthService
+  ) {}
+
+  @Get('/colors/:color')
+  setColor(@Param('color') color: string, @Session() session: any) {
+    session.color = color
   }
 
-  @UseInterceptors(ClassSerializerInterceptor)
+  @Get('/colors')
+  getColor(@Session() session: any) {
+    return session.color
+  }
+
+  @Get('/whoami')
+  whoAmI(@Session() session: any) {
+    return this.usersService.findOne(session.userId)
+  }
+
+  @Post('/signout')
+  signOut(@Session() session: any) {
+    session.userId = null
+  }
+
+  @Post('/signup')
+  async createUser(@Body() body: CreateUserDto, @Session() session: any) {
+    return {
+      email: "tet@test.com"
+    }
+    // now we can use the body params
+    // this.usersService.create(body.email, body.password);
+    const user =  await this.authService.signup(body.email, body.password)
+    session.userId = user.id
+    return user;
+  }
+
+  @Post('/signin')
+  async signin(@Body() body: CreateUserDto, @Session() session: any) {
+    const user = await this.authService.signin(body.email, body.password);
+    session.userId = user.id;
+    return user;
+  }
+
+  // @UseInterceptors(new SerializeInterceptor(UserDto))
+  // @Serialize(UserDto)
   @Get('/:id')
   async findUser(@Param('id') id: string) {
     const user = await this.usersService.findOne(parseInt(id));
