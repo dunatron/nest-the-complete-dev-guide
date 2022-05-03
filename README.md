@@ -96,3 +96,11 @@ The scratch example should extract the functionality
 ## Creating a new nest module
 
 - `nest generate module messages`
+
+## Unit Testing
+
+Make sure that individual methods on a class are working correctly
+
+## Integration Testing
+
+Test the full flow of a feature
